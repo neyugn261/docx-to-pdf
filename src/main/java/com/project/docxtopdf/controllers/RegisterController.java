@@ -2,6 +2,7 @@ package com.project.docxtopdf.controllers;
 
 import java.io.*;
 
+import com.project.docxtopdf.models.bo.UserBO;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
@@ -11,12 +12,15 @@ public class RegisterController extends  HttpServlet {
         super();
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            String user = request.getParameter("user");
-            String pass = request.getParameter("pass");
-    }
-
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        doGet(request, response);
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        boolean success = UserBO.addUser(username, password);
+        if (success) {
+            response.sendRedirect("login.jsp");
+        } else {
+            response.sendRedirect("register.jsp?error=1");
+        }
     }
 }

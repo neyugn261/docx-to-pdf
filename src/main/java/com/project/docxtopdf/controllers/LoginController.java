@@ -2,6 +2,8 @@ package com.project.docxtopdf.controllers;
 
 import java.io.*;
 
+import com.project.docxtopdf.models.bean.User;
+import com.project.docxtopdf.models.bo.UserBO;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
@@ -12,12 +14,17 @@ public class LoginController extends HttpServlet {
         super();
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            String user = request.getParameter("user");
-            String pass = request.getParameter("pass");
-    }
-
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        doGet(request, response);
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        User user = UserBO.checkLogin(username, password);
+        if (user != null) {
+            request.getSession().setAttribute("user", user);
+            response.sendRedirect("home.jsp");
+        }
+        else {
+            response.sendRedirect("login.jsp?error=1");
+        }
     }
 }

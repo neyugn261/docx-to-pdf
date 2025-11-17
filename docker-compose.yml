@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+    mysql:
+        image: mysql:9.2
+        container_name: docx-to-pdf-mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: V3ryStr0n9Pa55wOrd
+            MYSQL_DATABASE: docx_to_pdf_converter
+            MYSQL_USER: web_user
+            MYSQL_PASSWORD: V3ryStr0n9Pa55wOrd
+        networks:
+            - no-internet
+
+    web:
+        build: .
+        container_name: docx-to-pdf-web
+        ports:
+            - "8386:8080"
+        depends_on:
+            - mysql
+        networks:
+            - no-internet
+            - internet
+        environment:
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_NAME: docx_to_pdf_converter
+            DB_USER: web_user
+            DB_PASS: V3ryStr0n9Pa55wOrd
+
+networks:
+    internet: {}
+    no-internet:
+        internal: true

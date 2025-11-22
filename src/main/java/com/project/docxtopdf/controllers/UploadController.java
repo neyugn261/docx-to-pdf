@@ -1,12 +1,16 @@
 package com.project.docxtopdf.controllers;
 
-import java.io.*;
+import java.io.IOException;
 
 import com.project.docxtopdf.models.bean.User;
 import com.project.docxtopdf.models.bo.UploadBO;
+
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "upload", value = "/upload")
 @MultipartConfig(
@@ -31,20 +35,19 @@ public class UploadController extends HttpServlet {
             var originalFileName = filePart.getSubmittedFileName();
             var fileContent = filePart.getInputStream();
 
-        String uploadPath = request.getServletContext().getRealPath("/");
-        System.out.println("Upload Path: " + uploadPath);
+            String uploadPath = request.getServletContext().getRealPath("/");
+            System.out.println("Upload Path: " + uploadPath);
 
             try {
-                String filename = UploadBO.uploadFile(
+                UploadBO.uploadFile(
                         user.getId(),
                         originalFileName,
                         fileContent,
-                        uploadPath + UploadBO.UPLOAD_DIR
+                        uploadPath
                 );
-                request.setAttribute("filename", filename);
-                request.getRequestDispatcher("/convert").forward(request, response);
+                response.sendRedirect("history?upload=success");
             } catch (IllegalArgumentException e) {
-                response.sendRedirect("home.jsp?upload=error&message=" + e.getMessage());
+                response.sendRedirect("history?upload=error&message=" + e.getMessage());
             }
         }
     }

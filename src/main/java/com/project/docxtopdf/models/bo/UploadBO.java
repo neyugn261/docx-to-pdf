@@ -1,12 +1,12 @@
 package com.project.docxtopdf.models.bo;
 
-import com.project.docxtopdf.models.dao.TaskDAO;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+
+import com.project.docxtopdf.models.dao.TaskDAO;
 
 public class UploadBO {
     public static final String UPLOAD_DIR = "uploads/";
@@ -56,7 +56,7 @@ public class UploadBO {
         }
     }
 
-    public static String uploadFile(String userId, String originalFileName, InputStream fileContent, String uploadDir) {
+    public static String uploadFile(int userId, String originalFileName, InputStream fileContent, String uploadDir) {
         String safeFileName = Paths.get(originalFileName).getFileName().toString();
 
         if (safeFileName.contains("..")) {
@@ -77,7 +77,7 @@ public class UploadBO {
             System.out.println("Upload directory created: " + uploadDir);
         }
 
-        String storedFilePath = uploadDirectory + File.separator + uniqueFileName;
+        String storedFilePath = uploadDir + UPLOAD_DIR + File.separator + uniqueFileName;
         saveFile(fileContent, storedFilePath);
 
         TaskDAO.saveTask(userId, safeFileName, uniqueFileName, "PENDING");

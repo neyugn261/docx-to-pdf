@@ -1,13 +1,33 @@
 package com.project.docxtopdf.models.bo;
 
-import com.itextpdf.text.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFPicture;
+import org.apache.poi.xwpf.usermodel.XWPFPictureData;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
-import org.apache.poi.xwpf.usermodel.*;
-
-import java.io.*;
-import java.util.List;
 
 public class Converter {
     public static final String PDF_DIR = "pdfs";
@@ -17,15 +37,25 @@ public class Converter {
 
     static {
         try {
-            // Sử dụng font hỗ trợ Unicode (Arial Unicode MS hoặc font tương tự)
-            // Bạn có thể thay đổi đường dẫn font tùy theo hệ thống
-            vietnameseFont = BaseFont.createFont("fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            // Sử dụng DejaVu Sans - font Unicode miễn phí có sẵn trong Linux
+            vietnameseFont = BaseFont.createFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 
+                    BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            System.out.println("Successfully loaded DejaVu Sans font");
         } catch (Exception e) {
+            System.err.println("Failed to load DejaVu font, trying Liberation Sans: " + e.getMessage());
             try {
-                // Fallback: sử dụng Helvetica (hỗ trợ một phần Unicode)
-                vietnameseFont = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                // Fallback 1: Liberation Sans (cũng có trong nhiều hệ thống Linux)
+                vietnameseFont = BaseFont.createFont("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                        BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                System.out.println("Successfully loaded Liberation Sans font");
             } catch (Exception ex) {
-                System.err.println("Failed to load font: " + ex.getMessage());
+                System.err.println("Failed to load Liberation font, using Helvetica: " + ex.getMessage());
+                try {
+                    // Fallback 2: Helvetica (không hỗ trợ đầy đủ tiếng Việt)
+                    vietnameseFont = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                } catch (Exception ex2) {
+                    System.err.println("Critical: Failed to load any font: " + ex2.getMessage());
+                }
             }
         }
     }
@@ -96,7 +126,8 @@ public class Converter {
             closeResources(pdfDocument, fos, docx);
         }
 
-        return outputPath;
+        // Trả về đường dẫn tương đối: pdfs/filename.pdf
+        return PDF_DIR + File.separator + pdfFileName;
     }
 
     private static void processParagraph(Document pdfDocument, XWPFParagraph para,

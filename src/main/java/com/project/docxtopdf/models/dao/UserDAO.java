@@ -1,10 +1,10 @@
 package com.project.docxtopdf.models.dao;
 
+import java.sql.SQLException;
+
 import com.project.docxtopdf.models.bean.User;
 import com.project.docxtopdf.models.bo.Database;
 import com.project.docxtopdf.models.bo.PasswordUtil;
-
-import java.sql.SQLException;
 
 public class UserDAO {
 
@@ -19,7 +19,7 @@ public class UserDAO {
                     String storedHashedPassword = rs.getString("password");
                     if (PasswordUtil.checkPassword(password, storedHashedPassword)) {
                         user = new User(
-                                rs.getString("id"),
+                                rs.getInt("id"),
                                 rs.getString("username")
                         );
                     }

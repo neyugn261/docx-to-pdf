@@ -1,26 +1,26 @@
 package com.project.docxtopdf.models.bean;
 
 public class User {
-    String id;
+    int id;
     String username;
     String password;
 
-    public User(String id, String username, String password) {
+    public User(int id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
     }
 
-    public User(String id, String username) {
+    public User(int id, String username) {
         this.id = id;
         this.username = username;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

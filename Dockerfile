@@ -10,7 +10,10 @@ RUN mvn clean package -DskipTests
 FROM tomcat:10.1-jdk21
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends mysql-client \
+    && apt-get install -y --no-install-recommends \
+        mysql-client \
+        fonts-dejavu \
+        fonts-liberation \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/tomcat/webapps/*
 

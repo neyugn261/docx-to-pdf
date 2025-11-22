@@ -1,11 +1,14 @@
 package com.project.docxtopdf.controllers;
 
-import java.io.*;
+import java.io.IOException;
 
 import com.project.docxtopdf.models.bean.User;
 import com.project.docxtopdf.models.bo.UserBO;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "login", value = "/login")
 public class LoginController extends HttpServlet {
@@ -21,7 +24,7 @@ public class LoginController extends HttpServlet {
         User user = UserBO.checkLogin(username, password);
         if (user != null) {
             request.getSession().setAttribute("user", user);
-            response.sendRedirect("home.jsp");
+            response.sendRedirect("history");
         }
         else {
             response.sendRedirect("login.jsp?error=1");

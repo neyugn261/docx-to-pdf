@@ -37,21 +37,20 @@ public class Converter {
 
     static {
         try {
-            // Sử dụng DejaVu Sans - font Unicode miễn phí có sẵn trong Linux
             vietnameseFont = BaseFont.createFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 
                     BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             System.out.println("Successfully loaded DejaVu Sans font");
         } catch (Exception e) {
             System.err.println("Failed to load DejaVu font, trying Liberation Sans: " + e.getMessage());
             try {
-                // Fallback 1: Liberation Sans (cũng có trong nhiều hệ thống Linux)
+
                 vietnameseFont = BaseFont.createFont("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
                         BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
                 System.out.println("Successfully loaded Liberation Sans font");
             } catch (Exception ex) {
                 System.err.println("Failed to load Liberation font, using Helvetica: " + ex.getMessage());
                 try {
-                    // Fallback 2: Helvetica (không hỗ trợ đầy đủ tiếng Việt)
+
                     vietnameseFont = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
                 } catch (Exception ex2) {
                     System.err.println("Critical: Failed to load any font: " + ex2.getMessage());
@@ -98,19 +97,16 @@ public class Converter {
             PdfWriter.getInstance(pdfDocument, fos);
             pdfDocument.open();
 
-            // Tạo các font với hỗ trợ tiếng Việt
             Font normalFont = new Font(vietnameseFont, 12, Font.NORMAL);
             Font boldFont = new Font(vietnameseFont, 12, Font.BOLD);
             Font italicFont = new Font(vietnameseFont, 12, Font.ITALIC);
             Font boldItalicFont = new Font(vietnameseFont, 12, Font.BOLDITALIC);
 
-            // Xử lý paragraphs
             List<XWPFParagraph> paragraphs = docx.getParagraphs();
             for (XWPFParagraph para : paragraphs) {
                 processParagraph(pdfDocument, para, normalFont, boldFont, italicFont, boldItalicFont);
             }
 
-            // Xử lý tables
             List<XWPFTable> tables = docx.getTables();
             for (XWPFTable table : tables) {
                 pdfDocument.add(new Paragraph(" "));
@@ -126,7 +122,6 @@ public class Converter {
             closeResources(pdfDocument, fos, docx);
         }
 
-        // Trả về đường dẫn tương đối: pdfs/filename.pdf
         return PDF_DIR + File.separator + pdfFileName;
     }
 
@@ -138,7 +133,6 @@ public class Converter {
         Paragraph pdfPara = new Paragraph();
         pdfPara.setAlignment(getAlignment(para.getAlignment()));
 
-        // Xử lý heading levels
         String styleId = para.getStyle();
         if (styleId != null && styleId.startsWith("Heading")) {
             int headingLevel = getHeadingLevel(styleId);
@@ -146,18 +140,15 @@ public class Converter {
             pdfPara.setFont(headingFont);
         }
 
-        // Xử lý runs (text với formatting)
         List<XWPFRun> runs = para.getRuns();
         if (runs != null && !runs.isEmpty()) {
             for (XWPFRun run : runs) {
-                // Xử lý text
                 String text = run.getText(0);
                 if (text != null && !text.isEmpty()) {
                     Font font = getRunFont(run, normalFont, boldFont, italicFont, boldItalicFont);
                     pdfPara.add(new Chunk(text, font));
                 }
 
-                // Xử lý hình ảnh
                 List<XWPFPicture> pictures = run.getEmbeddedPictures();
                 if (pictures != null && !pictures.isEmpty()) {
                     for (XWPFPicture picture : pictures) {
@@ -170,14 +161,12 @@ public class Converter {
                 }
             }
         } else {
-            // Paragraph không có runs
             String text = para.getText();
             if (text != null && !text.isEmpty()) {
                 pdfPara.add(new Chunk(text, normalFont));
             }
         }
 
-        // Thêm paragraph vào document (kể cả khi empty để giữ spacing)
         if (pdfPara.isEmpty()) {
             pdfDocument.add(new Paragraph(" "));
         } else {
@@ -244,7 +233,6 @@ public class Converter {
             selectedFont = new Font(vietnameseFont, fontSize, Font.NORMAL);
         }
 
-        // Xử lý màu text nếu có
         String color = run.getColor();
         if (color != null && !color.equals("auto")) {
             try {

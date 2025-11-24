@@ -3,6 +3,9 @@ package com.project.docxtopdf.models.bo;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.project.docxtopdf.enums.TaskStatus;
 import com.project.docxtopdf.models.bean.Task;
@@ -11,10 +14,14 @@ public class TaskWorker implements Runnable {
     private volatile boolean running = true;
     private final String uploadDir;
     private final String outputDir;
+    private final ExecutorService executorService;
+    private static final int MAX_CONCURRENT_TASKS = 5;
+    private static final int POLL_INTERVAL_MS = 5000;
 
     public TaskWorker(String realPath) {
         this.uploadDir = realPath + UploadBO.UPLOAD_DIR;
         this.outputDir = realPath + Converter.PDF_DIR;
+        this.executorService = Executors.newFixedThreadPool(MAX_CONCURRENT_TASKS);
     }
 
     @Override
@@ -22,11 +29,10 @@ public class TaskWorker implements Runnable {
         while (running) {
             Task task = TaskBO.getPendingTask();
             if (task != null) {
-                processTask(task);
+                executorService.submit(() -> processTask(task));
             } else {
                 try {
-                    // Đợi 5 giây nếu không có task
-                    Thread.sleep(5000);
+                    Thread.sleep(POLL_INTERVAL_MS);
                 } catch (InterruptedException e) {
                     running = false;
                     Thread.currentThread().interrupt();
@@ -63,5 +69,16 @@ public class TaskWorker implements Runnable {
 
     public void stop() {
         running = false;
+        executorService.shutdown();
+        try {
+            // Chờ các task đang chạy hoàn thành trong 30 giây
+            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+                System.err.println("Some tasks were forcefully terminated");
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 }

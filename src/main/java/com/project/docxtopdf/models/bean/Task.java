@@ -1,26 +1,26 @@
 package com.project.docxtopdf.models.bean;
 
 public class Task {
-    private int id;
-    private int userId;
+    private String id;
+    private String userId;
     private String originalName;
     private String storedPath; // Nơi lưu trữ tệp đã tải lên
     private String outputPath; // Nơi lưu trữ tệp đã convert
     private String status;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

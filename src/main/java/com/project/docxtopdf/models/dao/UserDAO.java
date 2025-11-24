@@ -19,7 +19,7 @@ public class UserDAO {
                     String storedHashedPassword = rs.getString("password");
                     if (PasswordUtil.checkPassword(password, storedHashedPassword)) {
                         user = new User(
-                                rs.getInt("id"),
+                                rs.getString("id"),
                                 rs.getString("username")
                         );
                     }

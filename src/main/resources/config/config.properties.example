@@ -1,5 +1,0 @@
-db.host=YOUR_HOST
-db.port=YOUR_PORT
-db.name=YOUR_DATABASE
-db.user=YOUR_USERNAME
-db.pass=YOUR_PASSWORD

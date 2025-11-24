@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import com.project.docxtopdf.models.bean.User;
-import com.project.docxtopdf.models.dao.TaskDAO;
+import com.project.docxtopdf.models.bo.TaskBO;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "download", value = "/download")
+@WebServlet("/download")
 public class DownloadController extends HttpServlet {
 
     public DownloadController() {
@@ -29,24 +29,16 @@ public class DownloadController extends HttpServlet {
             return;
         }
 
-        String taskIdStr = request.getParameter("taskId");
-        if (taskIdStr == null || taskIdStr.isEmpty()) {
+        String taskId = request.getParameter("taskId");
+        if (taskId == null || taskId.isEmpty()) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing taskId.");
             return;
         }
 
-        int taskId;
-        try {
-            taskId = Integer.parseInt(taskIdStr);
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid taskId.");
-            return;
-        }
-
         var user = (User) session.getAttribute("user");
-        List<com.project.docxtopdf.models.bean.Task> tasks = TaskDAO.getTasksByUserId(user.getId());
+        List<com.project.docxtopdf.models.bean.Task> tasks = TaskBO.getTasksByUserId(user.getId());
 
-        var taskOptional = tasks.stream().filter(t -> t.getId() == taskId).findFirst();
+        var taskOptional = tasks.stream().filter(t -> t.getId().equals(taskId)).findFirst();
 
         if (taskOptional.isEmpty()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Task not found or you don't have permission.");

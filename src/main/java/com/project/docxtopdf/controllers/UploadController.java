@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "upload", value = "/upload")
+@WebServlet("/upload")
 @MultipartConfig(
         fileSizeThreshold = 1 * 1024 * 1024,
         maxFileSize = 10 * 1024 * 1024,
@@ -45,9 +45,9 @@ public class UploadController extends HttpServlet {
                         fileContent,
                         uploadPath
                 );
-                response.sendRedirect("history?upload=success");
+                response.sendRedirect("home?upload=success");
             } catch (IllegalArgumentException e) {
-                response.sendRedirect("history?upload=error&message=" + e.getMessage());
+                response.sendRedirect("home?upload=error&message" + e.getMessage());
             }
         }
     }

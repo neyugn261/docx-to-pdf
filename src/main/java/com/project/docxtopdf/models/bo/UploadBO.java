@@ -56,7 +56,7 @@ public class UploadBO {
         }
     }
 
-    public static String uploadFile(int userId, String originalFileName, InputStream fileContent, String uploadDir) {
+    public static String uploadFile(String userId, String originalFileName, InputStream fileContent, String uploadDir) {
         String safeFileName = Paths.get(originalFileName).getFileName().toString();
 
         if (safeFileName.contains("..")) {

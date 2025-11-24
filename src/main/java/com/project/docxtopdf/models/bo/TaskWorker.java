@@ -6,7 +6,6 @@ import java.io.InputStream;
 
 import com.project.docxtopdf.enums.TaskStatus;
 import com.project.docxtopdf.models.bean.Task;
-import com.project.docxtopdf.models.dao.TaskDAO;
 
 public class TaskWorker implements Runnable {
     private volatile boolean running = true;
@@ -21,7 +20,7 @@ public class TaskWorker implements Runnable {
     @Override
     public void run() {
         while (running) {
-            Task task = TaskDAO.getPendingTask();
+            Task task = TaskBO.getPendingTask();
             if (task != null) {
                 processTask(task);
             } else {
@@ -39,7 +38,7 @@ public class TaskWorker implements Runnable {
     private void processTask(Task task) {
         try {
             System.out.println("Processing task ID: " + task.getId());
-            TaskDAO.updateTaskStatus(task.getId(), TaskStatus.PROCESSING);
+            TaskBO.updateTaskStatus(task.getId(), TaskStatus.PROCESSING);
 
             String docxFilePath = uploadDir + File.separator + task.getStoredPath();
             File docxFile = new File(docxFilePath);
@@ -51,14 +50,14 @@ public class TaskWorker implements Runnable {
             try (InputStream docxInputStream = new FileInputStream(docxFile)) {
                 // convertDocxToPdf trả về đường dẫn tương đối (ví dụ: pdfs/file.pdf)
                 String relativePath = Converter.convertDocxToPdf(docxInputStream, task.getOriginalName(), outputDir);
-                TaskDAO.updateTaskStatus(task.getId(), TaskStatus.DONE, relativePath);
+                TaskBO.updateTaskStatus(task.getId(), TaskStatus.DONE, relativePath);
                 System.out.println("Task ID: " + task.getId() + " completed. Relative output: " + relativePath);
             }
 
         } catch (Exception e) {
             System.err.println("Error processing task ID: " + task.getId() + " - " + e.getMessage());
             e.printStackTrace();
-            TaskDAO.updateTaskStatus(task.getId(), TaskStatus.ERROR);
+            TaskBO.updateTaskStatus(task.getId(), TaskStatus.ERROR);
         }
     }
 

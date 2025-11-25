@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
+import com.project.docxtopdf.models.bean.Task;
 import com.project.docxtopdf.models.dao.TaskDAO;
 
 public class UploadBO {
@@ -80,7 +81,25 @@ public class UploadBO {
         String storedFilePath = uploadDir + UPLOAD_DIR + File.separator + uniqueFileName;
         saveFile(fileContent, storedFilePath);
 
-        TaskDAO.saveTask(userId, safeFileName, uniqueFileName, "PENDING");
+        // 1. Lưu vào database và lấy ID
+        String taskId = TaskDAO.saveTask(userId, safeFileName, uniqueFileName, "PENDING");
+        
+        // 2. Đẩy vào in-memory queue với đầy đủ thông tin
+        Task task = new Task();
+        task.setId(taskId);
+        task.setUserId(userId);
+        task.setOriginalName(safeFileName);
+        task.setStoredPath(uniqueFileName);
+        task.setStatus("PENDING");
+        
+        TaskBO taskBO = TaskBO.getInstance();
+        boolean queued = taskBO.submitTask(task);
+        
+        if (queued) {
+            System.out.println("Task " + taskId + " submitted to queue for immediate processing: " + uniqueFileName);
+        } else {
+            System.err.println("Failed to submit task " + taskId + " to queue: " + uniqueFileName);
+        }
 
         return uniqueFileName;
     }

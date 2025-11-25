@@ -1,14 +1,15 @@
 package com.project.docxtopdf.models.dao;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 import com.project.docxtopdf.models.bean.User;
-import com.project.docxtopdf.models.bo.Database;
-import com.project.docxtopdf.models.bo.PasswordUtil;
+import com.project.docxtopdf.utils.Database;
+import com.project.docxtopdf.utils.PasswordUtil;
 
 public class UserDAO {
 
-    public static User checkCredentials(String username, String password) {
+    public static User login(String username, String password) {
         String sql = "SELECT * FROM users WHERE username = ?";
         User user = null;
         try (var conn = Database.getConnection();
@@ -31,13 +32,15 @@ public class UserDAO {
         return user;
     }
 
-    public static boolean registerUser (String username, String password) {
-        String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+    public static boolean register(String username, String password) {
+        String userId = UUID.randomUUID().toString();
+        String sql = "INSERT INTO users (id, username, password) VALUES (?, ?, ?)";
         String hashedPassword = PasswordUtil.hashPassword(password);
         try (var conn = Database.getConnection();
              var stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
-            stmt.setString(2, hashedPassword);
+            stmt.setString(1, userId);
+            stmt.setString(2, username);
+            stmt.setString(3, hashedPassword);
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {

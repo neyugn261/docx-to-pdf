@@ -2,22 +2,26 @@ package com.project.docxtopdf.models.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.project.docxtopdf.models.bean.Task;
-import com.project.docxtopdf.models.bo.Database;
+import com.project.docxtopdf.utils.Database;
 
 public class TaskDAO {
 
-    public static void saveTask(String userId, String originalFileName, String storedFileName, String status) {
-        String sql = "INSERT INTO tasks (user_id, original_name, stored_path, status) VALUES (?, ?, ?, ?)";
+    public static String saveTask(String userId, String originalFileName, String storedFileName, String status) {
+        String taskId = UUID.randomUUID().toString();
+        String sql = "INSERT INTO tasks (id, user_id, original_name, stored_path, status) VALUES (?, ?, ?, ?, ?)";
 
         try (var conn = Database.getConnection();
              var stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, userId);
-            stmt.setString(2, originalFileName);
-            stmt.setString(3, storedFileName);
-            stmt.setString(4, status);
+            stmt.setString(1, taskId);
+            stmt.setString(2, userId);
+            stmt.setString(3, originalFileName);
+            stmt.setString(4, storedFileName);
+            stmt.setString(5, status);
             stmt.executeUpdate();
+            return taskId;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -68,6 +72,27 @@ public class TaskDAO {
             throw new RuntimeException(e);
         }
         return null;
+    }
+    
+    public static List<Task> getAllPendingTasks() {
+        List<Task> tasks = new ArrayList<>();
+        String sql = "SELECT * FROM tasks WHERE status = 'PENDING' ORDER BY created_at ASC";
+        try (var conn = Database.getConnection();
+             var stmt = conn.prepareStatement(sql);
+             var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Task task = new Task();
+                task.setId(rs.getString("id"));
+                task.setUserId(rs.getString("user_id"));
+                task.setOriginalName(rs.getString("original_name"));
+                task.setStoredPath(rs.getString("stored_path"));
+                task.setStatus(rs.getString("status"));
+                tasks.add(task);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return tasks;
     }
 
     public static List<Task> getTasksByUserId(String userId) {

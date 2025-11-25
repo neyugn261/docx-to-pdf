@@ -5,11 +5,11 @@ import com.project.docxtopdf.models.dao.UserDAO;
 
 public class UserBO {
 
-    public static User checkLogin(String username, String password) {
-        return UserDAO.checkCredentials(username, password);
+    public static User login(String username, String password) {
+        return UserDAO.login(username, password);
     }
 
-    public static boolean addUser(String username, String password) {
-        return UserDAO.registerUser(username, password);
+    public static boolean register(String username, String password) {
+        return UserDAO.register(username, password);
     }
 }
